@@ -43,3 +43,12 @@ yarn-error.*
 # Browser test outputs
 /test-results/
 /playwright-report/
+
+# Installable web export
+/web-dist/
+
+# Signed build artifacts
+/artifacts/
+
+__pycache__/
+*.pyc

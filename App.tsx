@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AmbientBackground, GlassPanel, Icon, palette as C, StrengthArt, SurfaceProvider } from './src/ui';
 import { catalog, emptyJournal, finishWorkout, parseSet, setCount, uid, volume, type Exercise, type Journal, type Workout } from './src/model';
 import { loadJournal, saveJournal } from './src/storage';
+import InstallHint from './src/InstallHint';
 
 const number = (n: number) => n.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
 const date = (value: string) => new Date(value).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -80,7 +81,7 @@ function JournalApp() {
     {!loaded ? <View style={s.empty}>{loadError ? <><Text style={s.cardTitle}>Не удалось прочитать дневник</Text><Text style={s.emptyText}>Сохранённые данные оставлены без изменений. Попробуйте загрузить ещё раз.</Text><Button title="Повторить загрузку" onPress={() => void load()} /></> : <ActivityIndicator color={C.accent} size="large" />}</View> : <>
       <GlassPanel style={s.tabs}>{(['workout', 'history'] as const).map(t => <Pressable key={t} accessibilityRole="tab" accessibilityState={{ selected: tab === t }} onPress={() => setTab(t)} style={[s.tab, tab === t && s.tabActive]}><Icon name={t === 'workout' ? 'dumbbell' : 'chart'} size={19} color={tab === t ? C.text : C.muted} /><Text style={[s.tabText, tab === t && { color: C.text }]}>{t === 'workout' ? 'Тренировка' : `История · ${journal.history.length}`}</Text></Pressable>)}</GlassPanel>
       <View style={s.saveStatus}>{saveError ? <Pressable accessibilityRole="button" onPress={() => void persist(journal)}><Text style={s.error}>Не сохранено. Нажмите, чтобы повторить</Text></Pressable> : <Text style={s.label}>{saving ? 'СОХРАНЕНИЕ…' : 'СОХРАНЕНО НА УСТРОЙСТВЕ'}</Text>}</View>
-      <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled"><InstallHint />
         {tab === 'workout' ? active ? <>
           <View style={s.row}><View style={{ flex: 1 }}><Text style={s.eyebrow}>ТЕКУЩАЯ ТРЕНИРОВКА</Text><Text style={s.title}>Становись сильнее.</Text></View><View style={s.badge}><Text style={s.badgeText}>В ЗАЛЕ</Text></View></View>
           <Text style={s.muted}>{date(active.startedAt)}</Text>

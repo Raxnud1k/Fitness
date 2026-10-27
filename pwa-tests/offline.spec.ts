@@ -1,0 +1,40 @@
+import { test, expect } from '@playwright/test';
+
+test('установка и запись тренировок без сети после повторного открытия', async ({ page, context }) => {
+  const errors: string[] = [];
+  context.on('page', p => p.on('pageerror', e => errors.push(e.message)));
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto('./');
+  await expect(page.getByText('Готово к работе без интернета', { exact: true })).toBeVisible();
+  await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+  const manifest = await page.evaluate(async () => {
+    const href = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')!.href;
+    return (await fetch(href)).json();
+  });
+  expect(manifest.display).toBe('standalone');
+  expect(manifest.start_url).toBe('./');
+  expect(manifest.icons.length).toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Начать тренировку', exact: true }).click();
+  await page.getByRole('button', { name: '+ Добавить упражнение', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Поиск или название упражнения' }).fill('Офлайн-тренажёр');
+  await page.getByRole('button', { name: 'Добавить «Офлайн-тренажёр»', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Вес: Офлайн-тренажёр', exact: true }).fill('45');
+  await page.getByRole('textbox', { name: 'Повторы: Офлайн-тренажёр', exact: true }).fill('12');
+  await page.getByRole('button', { name: '+ Добавить подход', exact: true }).click();
+  await expect(page.getByText('СОХРАНЕНО НА УСТРОЙСТВЕ', { exact: true })).toBeVisible();
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByText('45 кг × 12', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Завершить тренировку', exact: true }).click();
+  await page.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  await expect(page.getByText('1 упр. · 1 подх. · 540 кг объём', { exact: true })).toBeVisible();
+  await expect(page.getByText('СОХРАНЕНО НА УСТРОЙСТВЕ', { exact: true })).toBeVisible();
+  await page.close();
+  const reopened = await context.newPage();
+  await reopened.goto('http://127.0.0.1:8083/Fitness/');
+  await reopened.getByRole('tab', { name: 'История · 1', exact: true }).click();
+  await expect(reopened.getByText('1 упр. · 1 подх. · 540 кг объём', { exact: true })).toBeVisible();
+  await reopened.getByRole('button').filter({ hasText: '1 упр. · 1 подх. · 540 кг объём' }).click();
+  await expect(reopened.getByText('45 кг × 12', { exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});

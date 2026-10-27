@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AccessibilityInfo, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { BlurView } from 'expo-blur';
+import GlassBlur from './GlassBlur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, Ellipse, G, LinearGradient as SvgGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
@@ -39,7 +39,7 @@ export function GlassPanel({ children, style }: React.PropsWithChildren<{ style?
   const reduced = useContext(ReduceTransparency);
   return <View style={[styles.panel, style, reduced && styles.opaque]}>
     {!reduced && <>
-      <BlurView pointerEvents="none" tint="dark" intensity={28} style={StyleSheet.absoluteFill} />
+      <GlassBlur />
       <LinearGradient pointerEvents="none" colors={['rgba(231,239,255,0.09)', 'rgba(226,235,255,0.025)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
     </>}
     {children}

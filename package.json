@@ -32,9 +32,24 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:e2e": "playwright test",
-    "export": "expo export --platform all"
+    "export": "expo export --platform all",
+    "build:web": "node scripts/build-web.mjs",
+    "build:apk": "npx eas-cli@26.0.0 build --platform android --profile android-apk",
+    "build:ios-device": "npx eas-cli@26.0.0 build --platform ios --profile ios-device",
+    "build:ios-store": "npx eas-cli@26.0.0 build --platform ios --profile production",
+    "test:pwa": "playwright test --config playwright.pwa.config.ts",
+    "publish:web": "node scripts/publish-web.mjs"
   },
   "engines": {
     "node": ">=24 <25"
+  },
+  "expo": {
+    "autolinking": {
+      "android": {
+        "exclude": [
+          "expo-blur"
+        ]
+      }
+    }
   }
 }

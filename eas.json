@@ -13,6 +13,20 @@
       "ios": {
         "simulator": true
       }
+    },
+    "android-apk": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "autoIncrement": true
+    },
+    "ios-device": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
+      "autoIncrement": true
     }
   },
   "submit": {
