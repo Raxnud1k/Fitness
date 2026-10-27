@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Дневник силы",
+  "short_name": "Дневник силы",
+  "description": "Упражнения, веса и повторы — ваш дневник тренировок.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0C1225",
+  "theme_color": "#0C1225",
+  "icons": [
+    {
+      "src": "icons/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
