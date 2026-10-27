@@ -1,0 +1,50 @@
+import { test, expect } from '@playwright/test';
+
+test('тренировка, правка подхода, восстановление черновика и истории', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Начать тренировку', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Завершить тренировку', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: '+ Добавить упражнение', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Поиск или название упражнения' }).fill('Мой тренажёр');
+  await page.getByRole('button', { name: 'Добавить «Мой тренажёр»', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Вес: Мой тренажёр', exact: true }).fill('12,5');
+  await page.getByRole('textbox', { name: 'Повторы: Мой тренажёр', exact: true }).fill('0');
+  await page.getByRole('button', { name: '+ Добавить подход', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Повторы');
+  await page.getByRole('textbox', { name: 'Повторы: Мой тренажёр', exact: true }).fill('10');
+  await page.getByRole('button', { name: '+ Добавить подход', exact: true }).click();
+  await expect(page.getByText('12,5 кг × 10', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Изменить подход 1', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Повторы: Мой тренажёр', exact: true }).fill('12');
+  await page.getByRole('button', { name: 'Сохранить подход', exact: true }).click();
+  await expect(page.getByText('12,5 кг × 12', { exact: true })).toBeVisible();
+  await expect(page.getByText('СОХРАНЕНО НА УСТРОЙСТВЕ', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('12,5 кг × 12', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Завершить тренировку', exact: true }).click();
+  await page.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  await expect(page.getByText('1 упр. · 1 подх. · 150 кг объём', { exact: true })).toBeVisible();
+  await expect(page.getByText('СОХРАНЕНО НА УСТРОЙСТВЕ', { exact: true })).toBeVisible();
+  await page.reload();
+  await page.getByRole('tab', { name: 'История · 1', exact: true }).click();
+  await page.getByRole('button').filter({ hasText: '1 упр. · 1 подх. · 150 кг объём' }).click();
+  await expect(page.getByText('12,5 кг × 12', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Удалить тренировку', exact: true }).click();
+  await page.getByRole('button', { name: 'Назад', exact: true }).click();
+  await expect(page.getByText('12,5 кг × 12', { exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('ошибка чтения не затирает существующие данные', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Начать тренировку', exact: true })).toBeVisible();
+  await page.evaluate(() => localStorage.setItem('fitness-journal:v1', 'damaged-data'));
+  await page.reload();
+  await expect(page.getByText('Не удалось прочитать дневник', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('fitness-journal:v1'))).toBe('damaged-data');
+  await page.evaluate(() => localStorage.removeItem('fitness-journal:v1'));
+  await page.getByRole('button', { name: 'Повторить загрузку', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Начать тренировку', exact: true })).toBeVisible();
+});
