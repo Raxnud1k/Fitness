@@ -1,11 +1,11 @@
 const PREFIX='fitness-shell:'+new URL(self.registration.scope).pathname+':';
-const CACHE=PREFIX+"523a40c0cd5d8f02";
-const ASSETS=["./_expo/static/js/web/index-6f6f84c0ebed9ddade9adbb80bd0ab67.js","./favicon.ico","./icons/icon.png","./index.html","./manifest.webmanifest","./metadata.json"];
+const CACHE=PREFIX+"44c10565d90f01a9";
+const ASSETS=["./.fitness-web-export","./_expo/static/js/web/index-f084ec7057650cb099ed947351422158.js","./favicon.ico","./icons/icon.png","./index.html","./manifest.webmanifest","./metadata.json"];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));});
 self.addEventListener('activate',event=>{event.waitUntil((async()=>{for(const key of await caches.keys()){if(key.startsWith(PREFIX)&&key!==CACHE)await caches.delete(key);}await self.clients.claim();})());});
 self.addEventListener('fetch',event=>{
  const url=new URL(event.request.url);
- if(event.request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(self.registration.scope))return;
+ if(event.request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(self.registration.scope)||url.pathname.endsWith('.apk'))return;
  event.respondWith((async()=>{
   const cache=await caches.open(CACHE);
   if(event.request.mode==='navigate'){
